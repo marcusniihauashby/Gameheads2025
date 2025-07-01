@@ -5,9 +5,9 @@ using UnityEngine;
 public class BoarLogic : MonoBehaviour
 {
 
-    public gameObject player;
+    public rigidBody myRigidBody;
 
-    
+
     // Start is called before the first frame update
     void Start()
     {
