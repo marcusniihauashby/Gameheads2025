@@ -19,24 +19,33 @@ public class TeleporterScript : MonoBehaviour
 
     }
 
+
     void OnTriggerEnter(Collider other)
     {
-        // Only teleport if this object is marked as a teleport trigger
         if (!isTeleporter) return;
 
-        // Check if the object entering is the player
-        if (other.CompareTag("Player")) // Make sure your player GameObject is tagged as "Player"
+        if (other.CompareTag("Player"))
         {
-            Transform playerTransform = other.transform;
+            // Get the root player object
+            GameObject player = other.gameObject;
 
-            // Step 1: Get player's local position relative to this teleporter
-            Vector3 localOffset = transform.InverseTransformPoint(playerTransform.position);
+            // Find the truePosition child object
+            Transform truePos = player.transform.Find("truePosition");
+            if (truePos == null)
+            {
+                Debug.LogWarning("truePosition object not found on player.");
+                return;
+            }
 
-            // Step 2: Transform that local offset to world position in other teleporter's space
-            Vector3 targetPosition = otherTeleporter.transform.TransformPoint(localOffset);
+            // Step 1: Get truePosition's offset relative to this teleporter
+            Vector3 localOffset = transform.InverseTransformPoint(truePos.position);
 
-            // Step 3: Move player to new position (rotation is preserved automatically)
-            playerTransform.position = targetPosition;
+            // Step 2: Convert that to world space using the other teleporter
+            Vector3 targetTruePosWorld = otherTeleporter.transform.TransformPoint(localOffset);
+
+            // Step 3: Offset the entire player so that truePosition ends up at the right spot
+            Vector3 playerOffset = player.transform.position - truePos.position;
+            player.transform.position = targetTruePosWorld + playerOffset;
         }
     }
 }
